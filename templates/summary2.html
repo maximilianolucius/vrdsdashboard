@@ -1,0 +1,182 @@
+<!-- templates/summary2.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Summary2 Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+</head>
+<body>
+    {% include 'header.html' %}
+    <div class="container mt-4">
+        <h1 class="mb-4">Summary2 Dashboard</h1>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="alert alert-info">
+              {% for message in messages %}
+                <p>{{ message }}</p>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        <!-- Initial Balance Form -->
+        <form method="post" action="{{ url_for('summary2') }}" class="mb-4">
+            <div class="form-group">
+                <label for="initial_balance">Initial Balance:</label>
+                <input type="number" step="0.01" min="0.01" class="form-control" id="initial_balance" name="initial_balance" placeholder="Enter initial balance" required value="{{ initial_balance if initial_balance else 100000.00 }}">
+            </div>
+            <button type="submit" class="btn btn-primary">Display Summary2</button>
+        </form>
+
+        <!-- Display Summary2 Table -->
+        {% if summary_data %}
+            <h2>Summary2 Table</h2>
+            <p><strong>Initial Balance:</strong> ${{ "{:,.2f}".format(initial_balance) }}</p>
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Operaciones</th>
+                        <th>P&L Promedio</th>
+                        <th>Duración Media (min)</th>
+                        <th>Rentabilidad (%)</th>
+                        <th>Máx P&L Largos</th>
+                        <th>Min P&L Largos</th>
+                        <th>Máx P&L Cortos</th>
+                        <th>Min P&L Cortos</th>
+                        <th>% Ganadoras</th>
+                        <th>% Perdedoras</th>
+                        <th>P&L Prom Ganadoras</th>
+                        <th>P&L Promedio Perdedoras</th>
+                        <th>Duración Media Ganadoras (min)</th>
+                        <th>Duración Media Perdedoras (min)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in summary_data %}
+                        <tr>
+                            <td>{{ row.ID }}</td>
+                            <td>{{ row.Operaciones }}</td>
+                            <td>${{ "{:,.2f}".format(row.P_L_Promedio) }}</td>
+                            <td>{{ "{:,.2f}".format(row.Duracion_Media) }}</td>
+                            <td>{{ "{:,.2f}".format(row.Rentabilidad) }}%</td>
+                            <td>${{ "{:,.2f}".format(row.Max_P_L_Largos) }}</td>
+                            <td>${{ "{:,.2f}".format(row.Min_P_L_Largos) }}</td>
+                            <td>${{ "{:,.2f}".format(row.Max_P_L_Cortos) }}</td>
+                            <td>${{ "{:,.2f}".format(row.Min_P_L_Cortos) }}</td>
+                            <td>{{ "{:,.2f}".format(row.Porcentaje_Ganadoras) }}%</td>
+                            <td>{{ "{:,.2f}".format(row.Porcentaje_Perdedoras) }}%</td>
+                            <td>${{ "{:,.2f}".format(row.P_L_Prom_Ganadoras) }}</td>
+                            <td>${{ "{:,.2f}".format(row.P_L_Prom_Perdedoras) }}</td>
+                            <td>{{ "{:,.2f}".format(row.Duracion_Media_Ganadoras) }} minutes</td>
+                            <td>{{ "{:,.2f}".format(row.Duracion_Media_Perdedoras) }} minutes</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% elif uploaded_files %}
+            <p>No summary data to display.</p>
+        {% endif %}
+
+        <!-- Aggregated Metrics Table -->
+        {% if aggregated_metrics %}
+            <h2 class="mt-5">Aggregated Metrics</h2>
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th>Operaciones</th>
+                        <th>P&L Promedio</th>
+                        <th>Duración Media (min)</th>
+                        <th>Rentabilidad (%)</th>
+                        <th>Máx P&L Largos</th>
+                        <th>Min P&L Largos</th>
+                        <th>Máx P&L Cortos</th>
+                        <th>Min P&L Cortos</th>
+                        <th>% Ganadoras</th>
+                        <th>% Perdedoras</th>
+                        <th>P&L Prom Ganadoras</th>
+                        <th>P&L Promedio Perdedoras</th>
+                        <th>Duración Media Ganadoras (min)</th>
+                        <th>Duración Media Perdedoras (min)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Promedio</td>
+                        {% for col in ['Operaciones', 'P_L_Promedio', 'Duracion_Media', 'Rentabilidad',
+                                      'Max_P_L_Largos', 'Min_P_L_Largos', 'Max_P_L_Cortos', 'Min_P_L_Cortos',
+                                      'Porcentaje_Ganadoras', 'Porcentaje_Perdedoras',
+                                      'P_L_Prom_Ganadoras', 'P_L_Prom_Perdedoras',
+                                      'Duracion_Media_Ganadoras', 'Duracion_Media_Perdedoras'] %}
+                            <td>{{ "{:,.2f}".format(aggregated_metrics['Promedio'][col]) }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>Desv_T</td>
+                        {% for col in ['Operaciones', 'P_L_Promedio', 'Duracion_Media', 'Rentabilidad',
+                                      'Max_P_L_Largos', 'Min_P_L_Largos', 'Max_P_L_Cortos', 'Min_P_L_Cortos',
+                                      'Porcentaje_Ganadoras', 'Porcentaje_Perdedoras',
+                                      'P_L_Prom_Ganadoras', 'P_L_Prom_Perdedoras',
+                                      'Duracion_Media_Ganadoras', 'Duracion_Media_Perdedoras'] %}
+                            <td>{{ "{:,.2f}".format(aggregated_metrics['Desv_T'][col]) }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td>CV</td>
+                        {% for col in ['Operaciones', 'P_L_Promedio', 'Duracion_Media', 'Rentabilidad',
+                                      'Max_P_L_Largos', 'Min_P_L_Largos', 'Max_P_L_Cortos', 'Min_P_L_Cortos',
+                                      'Porcentaje_Ganadoras', 'Porcentaje_Perdedoras',
+                                      'P_L_Prom_Ganadoras', 'P_L_Prom_Perdedoras',
+                                      'Duracion_Media_Ganadoras', 'Duracion_Media_Perdedoras'] %}
+                            <td>{{ "{:.3f}".format(aggregated_metrics['CV'][col]) }}</td>
+                        {% endfor %}
+                    </tr>
+                </tbody>
+            </table>
+        {% endif %}
+
+        <!-- Correlation Matrix Table -->
+        {% if corr_matrix_list %}
+            <h2 class="mt-5">Correlation Matrix</h2>
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        {% for col in ['Operaciones', 'P_L_Promedio', 'Duracion_Media', 'Rentabilidad',
+                                      'Max_P_L_Largos', 'Min_P_L_Largos', 'Max_P_L_Cortos', 'Min_P_L_Cortos',
+                                      'Porcentaje_Ganadoras', 'Porcentaje_Perdedoras',
+                                      'P_L_Prom_Ganadoras', 'P_L_Prom_Perdedoras',
+                                      'Duracion_Media_Ganadoras', 'Duracion_Media_Perdedoras'] %}
+                            <th>{{ col.replace('_', ' ').replace('P_L_Prom', 'P&L Prom').replace('Duracion', 'Duración').replace('Prom', 'Promedio').replace('Porcentaje', '%').replace('Ganadoras', 'Ganadoras').replace('Perdedoras', 'Perdedoras') }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in corr_matrix_list %}
+                        <tr>
+                            <td>{{ row.Metric.replace('_', ' ').replace('P_L_Prom', 'P&L Prom').replace('Duracion', 'Duración').replace('Prom', 'Promedio').replace('Porcentaje', '%').replace('Ganadoras', 'Ganadoras').replace('Perdedoras', 'Perdedoras') }}</td>
+                            {% for col in ['Operaciones', 'P_L_Promedio', 'Duracion_Media', 'Rentabilidad',
+                                          'Max_P_L_Largos', 'Min_P_L_Largos', 'Max_P_L_Cortos', 'Min_P_L_Cortos',
+                                          'Porcentaje_Ganadoras', 'Porcentaje_Perdedoras',
+                                          'P_L_Prom_Ganadoras', 'P_L_Prom_Perdedoras',
+                                          'Duracion_Media_Ganadoras', 'Duracion_Media_Perdedoras'] %}
+                                <td>{{ "{:.3f}".format(row[col]) }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

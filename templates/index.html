@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intranet Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <!-- Optional: Include Bootstrap for better styling -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+</head>
+<body>
+    {% include 'header.html' %}
+    <div class="container mt-4">
+        <h1 class="mb-4">Trade Reports Dashboard</h1>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="alert alert-info">
+              {% for message in messages %}
+                <p>{{ message }}</p>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        <!-- Upload Form -->
+        <form action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data" class="mb-4">
+            <div class="form-group">
+                <label for="file">Upload CSV Files</label>
+                <input type="file" class="form-control-file" id="file" name="file" webkitdirectory multiple accept=".csv" required>
+                <small class="form-text text-muted">Select a directory containing CSV files to upload.</small>
+            </div>
+            <button type="submit" class="btn btn-primary">Upload Directory</button>
+        </form>
+
+        <!-- Uploaded CSV Files Table -->
+        <h2>Uploaded CSV Files</h2>
+        {% if uploaded_files %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>File Name</th>
+                    <th>Number of Rows</th>
+                    <th>Columns</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for file in uploaded_files %}
+                <tr>
+                    <td>{{ file.name }}</td>
+                    <td>{{ file.rows }}</td>
+                    <td>{{ file.columns }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No CSV files uploaded yet.</p>
+        {% endif %}
+
+        <!-- Optional: Summary Reports Section -->
+        {% if reports %}
+        <h2 class="mt-5">Summary Reports</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Average Profit</th>
+                    <th>Total Trades</th>
+                    <th>Total Profit</th>
+                    <th>Winning Trades</th>
+                    <th>Losing Trades</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for report in reports %}
+                <tr>
+                    <td>{{ report.avg_profit }}</td>
+                    <td>{{ report.total_trades }}</td>
+                    <td>{{ report.total_profit }}</td>
+                    <td>{{ report.winning_trades }}</td>
+                    <td>{{ report.losing_trades }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No summary reports available.</p>
+        {% endif %}
+    </div>
+
+    <!-- Optional: Include Bootstrap JS for better interactivity -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
