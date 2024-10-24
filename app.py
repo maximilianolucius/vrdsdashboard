@@ -162,6 +162,8 @@ def orders():
 
 @app.route('/summary', methods=['GET', 'POST'])
 def summary():
+    dates, balances, open_dates, open_orders = [], [], [], []
+
     uploaded_files = []
     for filename in os.listdir(app.config['UPLOAD_FOLDER']):
         if allowed_file(filename):
